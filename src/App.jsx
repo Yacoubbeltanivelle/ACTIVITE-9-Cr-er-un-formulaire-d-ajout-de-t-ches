@@ -4,7 +4,12 @@ import { Container, Form, Button } from "react-bootstrap";
 import "./App.css";
 
 function App() {
-  const { register, reset, handleSubmit } = useForm({
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       name: "",
       date: "",
@@ -27,13 +32,18 @@ function App() {
           <Form.Control
             type="text"
             placeholder="Nom"
-            {...register("name", { required: true })}
+            {...register("name", { required: "Le nom est obligatoire" })}
           />
+          {errors.name && <p>{errors.name.message}</p>}
         </Form.Group>
 
         <Form.Group controlId="date" className="mb-3">
           <Form.Label>Date</Form.Label>
-          <Form.Control type="date" {...register("date", { required: true })} />
+          <Form.Control
+            type="date"
+            {...register("date", { required: "Le Date est obligatoire" })}
+          />
+          {errors.date && <p>{errors.date.message}</p>}
         </Form.Group>
 
         <Form.Group controlId="priority" className="mb-3">
