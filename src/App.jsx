@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
 import "./App.css";
 
-function Forme() {
+function App() {
   const [formData, setFormData] = useState({
     name: "",
     date: "",
@@ -81,4 +81,4 @@ function Forme() {
   );
 }
 
-export default Forme;
+export default App;
