@@ -24,11 +24,10 @@ const schema = yup.object().shape({
       (value) => {
         if (!value) return false;
 
-        const [jour, mois, annee] = value.split("/").map(Number);
-        const dateData = new Date(annee, mois - 1, jour);
+        const [day, month, year] = value.split("/").map(Number);
+        const dateData = new Date(year, month - 1, day);
         const now = new Date();
         now.setHours(0, 0, 0, 0);
-        dateData.setHours(0, 0, 0, 0);
 
         return dateData >= now;
       }
@@ -53,6 +52,12 @@ function App() {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      date: "",
+      priority: "Basse",
+      isCompleted: false,
+    },
   });
 
   const onSubmit = (data) => {
@@ -67,7 +72,7 @@ function App() {
         <Form.Group controlId="name" className="mb-3">
           <Form.Label>Nom</Form.Label>
           <Form.Control type="text" placeholder="Nom" {...register("name")} />
-          <p style={{ color: "red" }}>{errors.name?.message}</p>
+          <p className="err">{errors.name?.message}</p>
         </Form.Group>
 
         <Form.Group controlId="date" className="mb-3">
@@ -78,7 +83,7 @@ function App() {
             {...register("date")}
           />
 
-          <p style={{ color: "red" }}>{errors.date?.message}</p>
+          <p className="err">{errors.date?.message}</p>
         </Form.Group>
 
         <Form.Group controlId="priority" className="mb-3">
@@ -88,6 +93,7 @@ function App() {
             <option value="Moyenne">Moyenne</option>
             <option value="Elevée">Elevée</option>
           </Form.Select>
+          <p className="err">{errors.priority?.message}</p>
         </Form.Group>
 
         <Form.Group controlId="completed" className="mb-3">
@@ -96,6 +102,7 @@ function App() {
             label="Complétée"
             {...register("isCompleted")}
           />
+          <p className="err">{errors.isCompleted?.message}</p>
         </Form.Group>
 
         <Button type="submit">Envoyer</Button>
