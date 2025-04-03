@@ -2,6 +2,48 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Container, Form, Button } from "react-bootstrap";
 import "./App.css";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+
+const schema = yup.object().shape({
+  name: yup
+    .string()
+    .min(8, "Le nom doit contenir au moins 8 caractères")
+    .max(15, "Le nom ne peut pas dépasser 15 caractères")
+    .required("Le nom est obligatoire"),
+
+  date: yup
+    .string()
+    .matches(dateRegex, "Le format de la date doit être jj/mm/aaaa")
+    .required("Le Date est obligatoire")
+    .test(
+      "test-date",
+      "La date ne peut pas être antérieure à aujourd’hui",
+      (value) => {
+        if (!value) return false;
+
+        const [jour, mois, annee] = value.split("/").map(Number);
+        const dateData = new Date(annee, mois - 1, jour);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        dateData.setHours(0, 0, 0, 0);
+
+        return dateData >= now;
+      }
+    ),
+
+  priority: yup
+    .string()
+    .oneOf(
+      ["Basse", "Moyenne", "Elevée"],
+      "La priorité doit être Basse, Moyenne ou Elevée"
+    )
+    .required("La priorité est obligatoire"),
+
+  isCompleted: yup.boolean().required("Le statut est obligatoire"),
+});
 
 function App() {
   const {
@@ -10,12 +52,7 @@ function App() {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      name: "",
-      date: "",
-      priority: "Basse",
-      isCompleted: false,
-    },
+    resolver: yupResolver(schema),
   });
 
   const onSubmit = (data) => {
@@ -29,21 +66,19 @@ function App() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Form.Group controlId="name" className="mb-3">
           <Form.Label>Nom</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Nom"
-            {...register("name", { required: "Le nom est obligatoire" })}
-          />
-          {errors.name && <p>{errors.name.message}</p>}
+          <Form.Control type="text" placeholder="Nom" {...register("name")} />
+          <p style={{ color: "red" }}>{errors.name?.message}</p>
         </Form.Group>
 
         <Form.Group controlId="date" className="mb-3">
           <Form.Label>Date</Form.Label>
           <Form.Control
-            type="date"
-            {...register("date", { required: "Le Date est obligatoire" })}
+            type="text"
+            placeholder="Format: jj/mm/aaaa"
+            {...register("date")}
           />
-          {errors.date && <p>{errors.date.message}</p>}
+
+          <p style={{ color: "red" }}>{errors.date?.message}</p>
         </Form.Group>
 
         <Form.Group controlId="priority" className="mb-3">
